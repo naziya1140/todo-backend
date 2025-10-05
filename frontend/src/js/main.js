@@ -29,13 +29,13 @@ const searchBox = document.querySelector('#searchInput');
 
 //🟢loading data in the local Storage.
 window.onload = async function () {
-  try{
+  try {
     let tasks = await getTaskList();
     console.log(tasks)
     // sorting(tasks);
     createFunctionalBtns();
     displayTask(tasks);
-  } catch(e){
+  } catch (e) {
     console.error(e);
     showAlert("Could not load tasks from server.", "error");
   }
@@ -56,12 +56,12 @@ searchBox.addEventListener("input", async () => {
 
 //🟢extracting taskList from database.
 async function getTaskList() {
-  try{
+  try {
     const res = await fetch('http://localhost:8000');
-    if(!res.ok) throw new Error("Failed to fetch tasks from backend.");
+    if (!res.ok) throw new Error("Failed to fetch tasks from backend.");
     return await res.json();
   }
-  catch(e){
+  catch (e) {
     console.error("Error fetching tasks:", e);
     showAlert(`Could not load tasks from server!`, 'error');
   }
@@ -69,6 +69,7 @@ async function getTaskList() {
 
 //making the list buttons functional.
 async function createFunctionalBtns() {
+
   //deleting task.
   ul.addEventListener("click", async (e) => {
     try {
@@ -80,9 +81,10 @@ async function createFunctionalBtns() {
           confirmBox.classList.remove("down");
           const listItem = e.target.closest("li");
           const deleteId = listItem.id;
-          
+
           const res = await deleteTask(deleteId);
-          
+          if (!res.ok) throw new Error("can't delete!");
+
           //displaying after deleting.
           const tasks = await getTaskList();
           displayTask(tasks);
@@ -98,19 +100,22 @@ async function createFunctionalBtns() {
 
   //task done
   ul.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("done-btn")) {
-      const listItem = e.target.closest("li");
-      const taskText = listItem.querySelector("p");
-      const doneBtn = e.target;
-      const id = listItem.id;
-      const tasks = await getTaskList();
+    try {
+      console.log('done event listener evoked');
 
-      const isCompleted = e.target.textContent.includes("Undone");
-      console.log(isCompleted);
-      // save updates
-      await updateCompletionStatus(id, isCompleted);
-      updateAnalyticBox(tasks);
-      displayTask(tasks);
+      if (e.target.classList.contains("done-btn")) {
+        const listItem = e.target.closest("li");
+        const id = listItem.id;
+        // save updates
+        await updateCompletionStatus(id);
+  
+        const tasks = await getTaskList();
+        displayTask(tasks);
+
+      }
+    }
+    catch (e) {
+      showAlert("Unable to mark task as completed");
     }
   });
 
@@ -152,7 +157,7 @@ async function createFunctionalBtns() {
 
         const addTaskContainer = document.querySelector('.addTask-container');
         const existing = document.querySelector('.btn-row');
-        if(!existing){
+        if (!existing) {
           const newDiv = document.createElement('div');
           newDiv.classList.add('row');
           newDiv.classList.add('g-3');
@@ -210,7 +215,7 @@ async function storeTask(taskData) {
     const res = await fetch('http://localhost:8000/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({taskData})
+      body: JSON.stringify({ taskData })
     });
     console.log("this is a response", res);
     // if (!res.ok) throw new Error('Failed to create task');
@@ -222,21 +227,21 @@ async function storeTask(taskData) {
 }
 
 //emptying all the boxes after adding input.
-function restoreInputBoxes(){
+function restoreInputBoxes() {
   taskBox.value = "";
   preferenceBox.value = "";
   dateTimeBox.value = "";
   tagsBox.value = "";
-  
+
   taskBox.style.background = "white";
   taskBox.style.border = "none";
-  
+
   preferenceBox.style.background = "white";
   preferenceBox.style.border = "none";
-  
+
   dateTimeBox.style.background = "white";
   dateTimeBox.style.border = "none";
-  
+
   tagsBox.style.background = "white";
   tagsBox.style.border = "none";
 }
@@ -397,14 +402,14 @@ function displayTask(tasks) {
 
 //🟢removing task from database.
 async function deleteTask(id) {
-  try{
+  try {
     const res = await fetch(`http://localhost:8000/${id}`, {
-      method:'DELETE'
+      method: 'DELETE'
     });
-    if(!res.ok)throw new Error("Failed to delete task");
+    if (!res.ok) throw new Error("Failed to delete task");
     showAlert('Task deleted successfully!', 'success');
   }
-  catch(e){
+  catch (e) {
     console.error('Error deleting task:', e);
     showAlert('Could not delete task from server', 'error');
   }
@@ -435,17 +440,15 @@ async function deleteTask(id) {
 
 
 // changing only a single value.
-async function updateCompletionStatus(id, completed) {
+async function updateCompletionStatus(id) {
   try {
     const res = await fetch(`http://localhost:8000/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed })
+      body: JSON.stringify({}) 
     });
 
     if (!res.ok) throw new Error('Failed to update completion status');
-    showAlert('Task status updated!', 'success');
-    
   } catch (e) {
     console.error('Error updating completion status:', e);
     showAlert('Could not update task status', 'error');

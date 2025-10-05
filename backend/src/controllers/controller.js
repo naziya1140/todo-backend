@@ -70,24 +70,29 @@ const addNewTask = async (req, res) => {
 }
 
 const updateCompletionStatus = async (req, res) => {
-    try {
-        const {id} = req.params;
-        const tasks = await readTask();
-        let isFound = false;
-        
-        for (let task of tasks) {
-            if (id == task.id) {
-                isFound = true;
-                task.completed = (!task.completed);
-            }
-        }
-        if (!isFound) return res.status(404).json({ error: `Task not found` });
-        await writeTask(data);
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Missing task ID" });
+
+    const tasks = await readTask();
+    let isFound = false;
+
+    for (let t of tasks) {
+      if (String(t.id) === String(id)) {
+        t.completed = !t.completed;
+        isFound = true;
+        break;
+      }
     }
-    catch (e) {
-        res.status(500).json({ error: `failed to update task. , ${e}` })
-    }
-}
+
+    if (!isFound) return res.status(404).json({ error: "Task not found" });
+
+    await writeTask(tasks);
+    return res.status(200).json({ message: "completed" });
+  } catch (e) {
+    res.status(500).json({ error: `Failed to update completion status: ${e.message}` });
+  }
+};
 
 const updateTask = async (req, res) => {
     try {
@@ -109,12 +114,12 @@ const updateTask = async (req, res) => {
         }
         if (!isFound) return res.status(404).json({ error: `Task not found` });
         await writeTask(tasks);
+        res.status(200).json({ success: `task updated successfully!` });
     }
     catch (e) {
         res.status(500).json({ error: `failed to update task. , ${e}` })
     }
 }
-
 
 const deleteTask = async (req, res) => {
     try {
