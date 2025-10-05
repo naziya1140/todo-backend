@@ -70,7 +70,7 @@ async function getTaskList() {
 //making the list buttons functional.
 async function createFunctionalBtns() {
 
-  //deleting task.
+  //🟢deleting task.
   ul.addEventListener("click", async (e) => {
     try {
       if (e.target.classList.contains("del-btn")) {
@@ -96,7 +96,7 @@ async function createFunctionalBtns() {
   });
 
 
-  //task done
+  //🟢task done
   ul.addEventListener("click", async (e) => {
     try {
       console.log('done event listener evoked');
@@ -125,20 +125,22 @@ async function createFunctionalBtns() {
       const listItem = e.target.closest("li");
       const id = listItem.id;
 
-      const data = await getTaskList();
-      const tasks = data.tasks;
+      let tasks = await getTaskList();
       let taskData = null;
 
-      tasks.forEach((task) => {
+      //fetcining data to display in the input boxes.
+      for(let task of tasks){
         if (id === String(task.id)) {
           taskData = task;
+          break;
         }
-      });
+      }
 
+      //display in input box.
       if (taskData) {
         taskBox.value = taskData.task;
         preferenceBox.value = taskData.preference;
-        // dateTimeBox.value = taskData.dateTime;
+        dateTimeBox.value = taskData.dateTime;
         tagsBox.value = taskData.tags;
 
         taskBox.style.background = "beige";
@@ -155,6 +157,7 @@ async function createFunctionalBtns() {
 
         const addTaskContainer = document.querySelector('.addTask-container');
         const existing = document.querySelector('.btn-row');
+
         if (!existing) {
           const newDiv = document.createElement('div');
           newDiv.classList.add('row');
@@ -173,33 +176,40 @@ async function createFunctionalBtns() {
               Cancel
             </button>
           </div>`;
+
           addTaskContainer.insertAdjacentElement('afterend', newDiv);
 
           const saveBtn = document.querySelector('#save-btn');
           const cancelBtn = document.querySelector('#cancel-btn');
 
-          saveBtn.addEventListener('click', () => {
-            const preferenceInput = preferenceBox.value;
-            const taskInput = taskBox.value.trim();
-            const dateTimeInput = dateTimeBox ? dateTimeBox.value : null;
-            const tagsInput = tagsBox.value;
-            const tagsInputArray = tagsInput ? tagsInput.split(",") : [];
+          saveBtn.addEventListener('click', async () => {
+            try{
+              const preferenceInput = preferenceBox.value;
+              const taskInput = taskBox.value.trim();
+              const dateTimeInput = dateTimeBox ? dateTimeBox.value : null;
+              const tagsInput = tagsBox.value;
+              const tagsInputArray = tagsInput ? tagsInput.split(",") : [];
 
-            const updatedData = {
-              task: taskInput,
-              preference: preferenceBox,
-              dateTime: dateTimeInput,
-              tags: tagsInputArray,
+              const updatedData = {
+                task: taskInput,
+                preference: preferenceInput,
+                dateTime: dateTimeInput,
+                tags: tagsInputArray,
+              }
+
+              await updateTask(id, updatedData);
+        
+              restoreInputBoxes();
+
+              const tasks = await getTaskList();
+              displayTask(tasks);
+            } catch(e){
+              console.log("unable to update entire values.", e);
             }
-            updateTask(id, updatedData);
-            restoreInputBoxes();
-            newDiv.remove();
-            displayTask(tasks);
           });
-
+       
           cancelBtn.addEventListener('click', () => {
             restoreInputBoxes();
-            newDiv.remove();
           });
         }
       }
@@ -224,13 +234,14 @@ async function storeTask(taskData) {
   }
 }
 
-//emptying all the boxes after adding input.
+//🟢emptying all the boxes after adding input.
 function restoreInputBoxes() {
+  const btnBox = document.querySelector('.btn-row');
   taskBox.value = "";
   preferenceBox.value = "";
   dateTimeBox.value = "";
   tagsBox.value = "";
-
+  
   taskBox.style.background = "white";
   taskBox.style.border = "none";
 
@@ -242,6 +253,8 @@ function restoreInputBoxes() {
 
   tagsBox.style.background = "white";
   tagsBox.style.border = "none";
+
+  btnBox.remove();
 }
 
 //🟢Adding new List.
@@ -288,12 +301,7 @@ addBtn.addEventListener("click", async () => {
 
   showAlert("Task added successfully!", "success");
 
-  //Reset values.
-  taskBox.value = "";
-  preferenceBox.value = "";
-  dateTimeBox.value = "";
-  tagsBox.value = "";
-
+  restoreInputBoxes();
   return;
 });
 
@@ -413,29 +421,29 @@ async function deleteTask(id) {
   }
 }
 
-
-// async function updateTask(id, updatedData){
-//   try{
-//     const res = await fetch(`http://localhost:8000/${id}`, {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({
-//         task: updatedData.task,
-//         preference: updatedData.preference,
-//         tags: updatedData.tags,
-//         completed: updatedData.completed,
-//       })
-//     });
-//     if (!res.ok) throw new Error('Failed to update task');
-//     showAlert('Task updated successfully!', 'success');
-//     return;
-//   }
-//   catch(e){
-//     console.error('Error updating task:', e);
-//     showAlert('Could not update task on server', 'error');
-//   }
-// }
-
+//updating tasks.
+async function updateTask(id, updatedData){
+  try{
+    const res = await fetch(`http://localhost:8000/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        task: updatedData.task,
+        preference: updatedData.preference,
+        // dateTime: updatedData.dateTime,
+        tags: updatedData.tags,
+        completed: updatedData.completed,
+      })
+    });
+    if (!res.ok) throw new Error('Failed to update task');
+    showAlert('Task updated successfully!', 'success');
+    return;
+  }
+  catch(e){
+    console.error('Error updating task:', e);
+    showAlert('Could not update task on server', 'error');
+  }
+}
 
 // changing only a single value.
 async function updateCompletionStatus(id) {

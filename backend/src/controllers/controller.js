@@ -43,7 +43,6 @@ const getAllTasks = async (req, res) => {
     }
 };
 
-
 const addNewTask = async (req, res) => {
     try {
         console.log('I am in add new taks');
@@ -96,17 +95,19 @@ const updateCompletionStatus = async (req, res) => {
 
 const updateTask = async (req, res) => {
     try {
+        console.log("inside update tasks");
         const { id } = req.params;
         const tasks = await readTask();
         let isFound = false;
+
         const {task, preference, dateTime, tags, completed} = req.body;
 
         for (let t of tasks) {
-            if (id === t.id) {
+            if (id === String(t.id)) {
                 isFound = true;
                 t.task = task;
                 t.preference = preference;
-                t.dateTime = dateTime;
+                // t.dateTime = dateTime;
                 t.tags = tags;
                 t.completed = completed;
                 t.updatedAt = new Date().toISOString();
