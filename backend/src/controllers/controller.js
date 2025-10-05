@@ -45,8 +45,6 @@ const getAllTasks = async (req, res) => {
 
 const addNewTask = async (req, res) => {
     try {
-        console.log('I am in add new taks');
-        console.log(req.body);
         const {taskData} = req.body;
 
         const newTask = {
@@ -56,7 +54,6 @@ const addNewTask = async (req, res) => {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         }
-        console.log(newTask);
 
         const tasks = await readTask();
         tasks.push(newTask);
@@ -95,7 +92,6 @@ const updateCompletionStatus = async (req, res) => {
 
 const updateTask = async (req, res) => {
     try {
-        console.log("inside update tasks");
         const { id } = req.params;
         const tasks = await readTask();
         let isFound = false;
@@ -129,7 +125,6 @@ const deleteTask = async (req, res) => {
         const len = tasks.length;
        
         tasks = tasks.filter((t) => String(t.id) !== id);
-        console.log(tasks);
 
         if (tasks.length === len) {
             return res.status(404).json({ error: `task to be deleted not found` });
@@ -145,8 +140,6 @@ const deleteTask = async (req, res) => {
 const updateSortedTasks = async (req, res) =>{
     try{
         const {sortedTasks} = req.body;
-        console.log("inside backend",sortedTasks);
-        console.log(sortedTasks);
         await writeTask(sortedTasks);
         res.status(200).json({ message: `tasks sorted successfully!` });
     } catch(e){

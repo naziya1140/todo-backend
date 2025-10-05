@@ -31,8 +31,7 @@ const searchBox = document.querySelector('#searchInput');
 window.onload = async function () {
   try {
     let tasks = await getTaskList();
-    console.log(tasks)
-    sorting(tasks);
+    await sorting(tasks);
     createFunctionalBtns();
     displayTask(tasks);
   } catch (e) {
@@ -41,25 +40,12 @@ window.onload = async function () {
   }
 };
 
-//🟢searching.
-searchBox.addEventListener("input", async () => {
-  const searchValue = searchBox.value.toLowerCase(); // make case-insensitive
-  const tasks = await getTaskList(); // fetch all tasks
-
-  // filter tasks whose `task` contains searchValue
-  const filteredTasks = tasks.filter(t =>
-    t.task.toLowerCase().includes(searchValue)
-  );
-
-  displayTask(filteredTasks); // show only matching tasks
-});
-
 //🟢extracting taskList from database.
 async function getTaskList() {
   try {
     const res = await fetch('http://localhost:8000');
     if (!res.ok) throw new Error("Failed to fetch tasks from backend.");
-    return await res.json();
+    return await res.json();//returning tasksList fetched from DB.
   }
   catch (e) {
     console.error("Error fetching tasks:", e);
@@ -67,7 +53,54 @@ async function getTaskList() {
   }
 }
 
-//🟢making the list buttons functional.
+//🟢displaying tasks.
+function displayTask(tasks) {
+  const ul = document.querySelector("#taskList");
+  ul.innerHTML = ""; //empty the container before adding the values again.
+
+  tasks.forEach((t) => {
+    const newLi = document.createElement("li");
+    let textStyle = 'none'
+
+    if (t.completed === true) {
+      textStyle = 'line-through';
+    }
+
+    let preferenceColor = "black"; // default color
+    if (t.preference.toLowerCase() === "high") {
+      preferenceColor = "red";
+    } else if (t.preference.toLowerCase() === "medium") {
+      preferenceColor = "yellow";
+    } else if (t.preference.toLowerCase() === "low") {
+      preferenceColor = "green";
+    }
+
+    newLi.innerHTML = `
+  <div class="list-container d-flex align-items-center justify-content-between">
+    <div class="data-container d-flex gap-2 align-items-center">
+      <div class="preference-container p-1 rounded-1" style="background:${preferenceColor}">${t.preference}</div>
+      <div class="time-container">${t.dateTime ? new Date(t.dateTime).toLocaleString() : ''}</div>
+      <p class="m-0" style="text-decoration: ${textStyle}">${t.task}</p>
+      <div class="tags-container">${t.tags.join(" ")}</div>
+    </div>
+
+    <div class="btn-container">
+     <button class="btn primary-btn done-btn">
+        ${t.completed === true ? 'Undone' : 'Done'}
+      </button>
+
+      ${functionalBtns}
+    </div>
+  </div>`;
+
+    newLi.id = t.id;
+    ul.appendChild(newLi);
+  });
+
+  updateAnalyticBox(tasks);
+}
+
+//🟢making the list buttons functional.(adding event listener)
 async function createFunctionalBtns() {
 
   //🟢deleting task.
@@ -91,8 +124,8 @@ async function createFunctionalBtns() {
         }
       }
     } catch (e) {
-      console.log("deletion Error", e);
-      showAlert("something went wrong while deleting");
+      console.error(e);
+      showAlert("Deletion Error", "error");
     }
   });
 
@@ -100,25 +133,22 @@ async function createFunctionalBtns() {
   //🟢task done
   ul.addEventListener("click", async (e) => {
     try {
-      console.log('done event listener evoked');
-
       if (e.target.classList.contains("done-btn")) {
         const listItem = e.target.closest("li");
         const id = listItem.id;
-        // save updates
-        await updateCompletionStatus(id);
-  
-        const tasks = await getTaskList();
+
+        await updateCompletionStatus(id);// save updates
+        const tasks = await getTaskList();//displaying data.
         displayTask(tasks);
       }
     }
     catch (e) {
-      showAlert("Unable to mark task as completed");
+      showAlert("Unable to mark task as completed", "error");
     }
   });
 
 
-  //edit Btn
+  //🟢edit tasks
   ul.addEventListener("click", async (e) => {
     if (e.target.classList.contains("edit-btn")) {
       console.log("inside edit button")
@@ -197,14 +227,16 @@ async function createFunctionalBtns() {
                 tags: tagsInputArray,
               }
 
-              await updateTask(id, updatedData);
-        
+              await updateTask(id, updatedData);//updating tasks.
+    
               restoreInputBoxes();
 
               const tasks = await getTaskList();
+              await sorting(tasks);
               displayTask(tasks);
             } catch(e){
-              console.log("unable to update entire values.", e);
+              console.error(e);
+              showAlert("Updation error!", "error");
             }
           });
        
@@ -217,22 +249,18 @@ async function createFunctionalBtns() {
   });
 }
 
-//🟢adding task to database..
-async function storeTask(taskData) {
-  try {
-    const res = await fetch('http://localhost:8000/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskData })
-    });
-    console.log("this is a response", res);
-    // if (!res.ok) throw new Error('Failed to create task');
-    showAlert('Task added successfully!', 'success');
-  } catch (e) {
-    console.error('Error creating task:', e);
-    showAlert('Could not add task to server', 'error');
-  }
-}
+//🟢searching.
+searchBox.addEventListener("input", async () => {
+  const searchValue = searchBox.value.toLowerCase(); // make case-insensitive
+  const tasks = await getTaskList(); // fetch all tasks
+
+  // filter tasks whose `task` contains searchValue
+  const filteredTasks = tasks.filter(t =>
+    t.task.toLowerCase().includes(searchValue)
+  );
+
+  displayTask(filteredTasks); // show only matching tasks
+});
 
 //🟢emptying all the boxes after adding input.
 function restoreInputBoxes() {
@@ -256,7 +284,7 @@ function restoreInputBoxes() {
   if(btnBox)btnBox.remove();
 }
 
-//🟢Adding new List.
+//🟢Adding new List(event listener)
 addBtn.addEventListener("click", async () => {
   const preferenceInput = preferenceBox.value;
   const taskInput = taskBox.value.trim();
@@ -296,6 +324,7 @@ addBtn.addEventListener("click", async () => {
   await storeTask(taskData);
 
   let tasks = await getTaskList();
+  await sorting(tasks);
   displayTask(tasks);
 
   showAlert("Task added successfully!", "success");
@@ -304,124 +333,22 @@ addBtn.addEventListener("click", async () => {
   return;
 });
 
-//🟢displaying tasks.
-function displayTask(tasks) {
-  console.log("inside display tasks!");
-  const ul = document.querySelector("#taskList");
-  ul.innerHTML = ""; //empty the container before adding the values again.
-
-  tasks.forEach((t) => {
-    const newLi = document.createElement("li");
-    let textStyle = 'none'
-
-    if (t.completed === true) {
-      textStyle = 'line-through';
-    }
-
-    let preferenceColor = "black"; // default color
-    if (t.preference.toLowerCase() === "high") {
-      preferenceColor = "red";
-    } else if (t.preference.toLowerCase() === "medium") {
-      preferenceColor = "yellow";
-    } else if (t.preference.toLowerCase() === "low") {
-      preferenceColor = "green";
-    }
-
-    newLi.innerHTML = `
-  <div class="list-container d-flex align-items-center justify-content-between">
-    <div class="data-container d-flex gap-2 align-items-center">
-      <div class="preference-container p-1 rounded-1" style="background:${preferenceColor}">${t.preference}</div>
-      <div class="time-container">${t.dateTime ? new Date(t.dateTime).toLocaleString() : ''}</div>
-      <p class="m-0" style="text-decoration: ${textStyle}">${t.task}</p>
-      <div class="tags-container">${t.tags.join(" ")}</div>
-    </div>
-
-    <div class="btn-container">
-     <button class="btn primary-btn done-btn">
-        ${t.completed === true ? 'Undone' : 'Done'}
-      </button>
-
-      ${functionalBtns}
-    </div>
-  </div>`;
-
-    newLi.id = t.id;
-    ul.appendChild(newLi);
-  });
-
-  updateAnalyticBox(tasks);
-}
-
-//sorting on the basis of Time.
-function sortByTime(tasks) {
-  tasks.sort((a, b) => {
-    const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
-    const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
-    return aTime - bTime; // earlier time first
-  }); 
-  return tasks;
-}
-
-//sorting on the basis of preference.
-function sortByPreference(tasks) {
-  const preferenceOrder = {
-    High: 1,
-    Medium: 2,
-    Low: 3
-  };
-
-  tasks.sort((a, b) => {
-    const aPref = preferenceOrder[a.preference] || 4;
-    const bPref = preferenceOrder[b.preference] || 4;
-    return aPref - bPref;
-  });
-  return tasks;
-}
-
-// no sorting applied.
-function sortByIndex(tasks) {
-  tasks.sort((a, b) => {
-    return Number(a.id) - Number(b.id);
-  });
-  return tasks;
-}
-
-async function sorting(tasks) {
-  try{
-    console.log("this is tasks inside sorting frontend", tasks);
-    const sortValue = sortInput.value;
-  
-    if (sortValue === "time") {
-      tasks = sortByTime(tasks);
-    } else if (sortValue === "preference") {
-      tasks = sortByPreference(tasks);
-    } else {
-      tasks = sortByIndex(tasks);
-    }
-  
-    //save it in the database.
-    console.log('before updated tasks!');
-    await updateSortedTasks(tasks);
-
-    //display tasks
-    console.log("before display tasks!");
-    displayTask(tasks);
-  } catch(e){
-    console.error(e);
-    showAlert("Unable to sort tasks!");
+//🟢adding task to database..
+async function storeTask(taskData) {
+  try {
+    const res = await fetch('http://localhost:8000/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskData })
+    });
+    console.log("this is a response", res);
+    // if (!res.ok) throw new Error('Failed to create task');
+    showAlert('Task added successfully!', 'success');
+  } catch (e) {
+    console.error('Error creating task:', e);
+    showAlert('Could not add task to server', 'error');
   }
 }
-
-sortInput.addEventListener("change",async ()=>{
-  try{
-    let tasks = await getTaskList();
-    sorting(tasks);
-  } catch(e){
-    console.log(e);
-    showAlert('unable to sort', 'error');
-  }
-});
-
 
 //🟢removing task from database.
 async function deleteTask(id) {
@@ -462,7 +389,7 @@ async function updateTask(id, updatedData){
   }
 }
 
-//🟢changing only a single value.
+//🟢updating only completion status.
 async function updateCompletionStatus(id) {
   try {
     const res = await fetch(`http://localhost:8000/${id}`, {
@@ -473,22 +400,12 @@ async function updateCompletionStatus(id) {
 
     if (!res.ok) throw new Error('Failed to update completion status');
   } catch (e) {
-    console.error('Error updating completion status:', e);
+    console.error(e);
     showAlert('Could not update task status', 'error');
   }
 }
 
-//🟢updating the analytics.
-function updateAnalyticBox(tasks) {
-  const total = tasks.length;
-  const completed = tasks.filter(t => t.completed === true).length;
-  const pending = total - completed;
-
-  document.querySelector(".total-tasks").innerText = total;
-  document.querySelector(".completed-tasks").innerText = completed;
-  document.querySelector(".pending-tasks").innerText = pending;
-}
-
+//🟢Updating entire tasks list(sorted order)
 async function updateSortedTasks(sortedTasks) {
   try {
     const res = await fetch('http://localhost:8000/sort', {
@@ -508,7 +425,84 @@ async function updateSortedTasks(sortedTasks) {
   }
 }
 
-//showing Alert message.
+//sorting on the basis of Time.
+function sortByTime(tasks) {
+  tasks.sort((a, b) => {
+    const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
+    const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
+    return aTime - bTime; // earlier time first
+  }); 
+  return tasks;
+}
+
+//sorting on the basis of preference.
+function sortByPreference(tasks) {
+  const preferenceOrder = {
+    High: 1,
+    Medium: 2,
+    Low: 3
+  };
+
+  tasks.sort((a, b) => {
+    const aPref = preferenceOrder[a.preference] || 4;
+    const bPref = preferenceOrder[b.preference] || 4;
+    return aPref - bPref;
+  });
+  return tasks;
+}
+
+// no sorting applied.
+function sortByIndex(tasks) {
+  tasks.sort((a, b) => {
+    return Number(a.id) - Number(b.id);
+  });
+  return tasks;
+}
+
+async function sorting(tasks) {
+  try{
+    const sortValue = sortInput.value;
+  
+    if (sortValue === "time") {
+      tasks = sortByTime(tasks);
+    } else if (sortValue === "preference") {
+      tasks = sortByPreference(tasks);
+    } else {
+      tasks = sortByIndex(tasks);
+    }
+  
+    //save it in the database.
+    await updateSortedTasks(tasks);
+
+    //display tasks.
+    displayTask(tasks);
+  } catch(e){
+    console.error(e);
+    showAlert("Sorting Error", 'error');
+  }
+}
+
+sortInput.addEventListener("change",async ()=>{
+  try{
+    let tasks = await getTaskList();
+    await sorting(tasks);
+  } catch(e){
+    console.log(e);
+  }
+});
+
+//🟢updating the analytics.
+function updateAnalyticBox(tasks) {
+  const total = tasks.length;
+  const completed = tasks.filter(t => t.completed === true).length;
+  const pending = total - completed;
+
+  document.querySelector(".total-tasks").innerText = total;
+  document.querySelector(".completed-tasks").innerText = completed;
+  document.querySelector(".pending-tasks").innerText = pending;
+}
+
+//🟢showing Alert message.
 function showAlert(message, method) {
   messageBox.innerText = message;
   // remove any previous state first
