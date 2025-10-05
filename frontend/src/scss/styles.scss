@@ -1,0 +1,283 @@
+// Import all of Bootstrap’s CSS
+@import "bootstrap/scss/bootstrap";
+@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: "cabin", "sans-serif";
+    font-size: 12px;
+}
+
+body {
+    .head-font {
+        font-size: 2rem;
+    }
+
+    min-height: 100vh;
+    // background-image: url('../assets/images/background2.jpg');
+    // background-repeat: no-repeat;
+    // background-attachment: fixed;
+    // background-size: cover;
+    background: linear-gradient(135deg,
+        #C0A080 0%,
+        /* Light Coffee / Latte */
+        #7A3E28 50%,
+        /* Mars-like Dark Reddish Brown */
+        #1E0F0A 100%
+        /* Black Coffee */
+    );
+
+
+    h1 {
+        color: white;
+    }
+
+    .btn-brown {
+        border: none;
+        background-color: #2f0e03;
+        color: white;
+    }
+
+    .btn-brown:hover {
+        background-color: #b5895e;
+    }
+
+    .btn-brown:active {
+        background-color: #1E0F0A;
+    }
+
+    .container {
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            .analytic-box{
+                text-align: center;
+                background-color: #2f0e03;
+                color: white;
+                font-size: 3rem;
+                font-weight: 600;
+            }
+        }
+
+        #taskList {
+            li {
+                // display: flex;
+                // justify-content: space-between;
+                // align-items: center;
+                margin: 0.3rem;
+                background-color: white;
+                border-radius: 6px;
+                padding: 0.2rem;
+                list-style: none;
+
+                .btn-container{
+                    display: flex;
+                    align-items: center;
+                    .done-btn {
+                        background-color: black;
+                        color: white;
+                    }
+                    
+                    .functional-btns {
+                        margin: 0.2rem;
+                        
+                        img {
+                            width: 1.5rem;
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+        .list-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .data-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .data-container>* {
+            margin: 0;
+        }
+
+        .alert-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .alert-box {
+                width: fit-content;
+                height: fit-content;
+                padding: 0.5rem;
+                border-radius: 5px;
+                bottom: -200px;
+                position: fixed;
+                z-index: 10;
+                background-color: yellow;
+                display: none;
+            }
+        }
+
+        .alert-box.show {
+            display: block;
+            animation: popup-slider 3s ease-in-out forwards;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-box.error {
+            background-color: rgba(255, 0, 0, 0.571);
+            border: 1px solid red;
+            color: white;
+        }
+
+        .alert-box.success {
+            background-color: rgba(0, 128, 0, 0.753);
+            border: 1px solid green;
+            color: white;
+        }
+
+        .confirm-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+
+            .confirm-box {
+                width: fit-content;
+                height: fit-content;
+                color: black;
+                background-color: white;
+                border-radius: 15px;
+                border-bottom: 8px solid #2f0e03;
+                bottom: -200px;
+                position: fixed;
+                display: none;
+            }
+
+            .confirm-box.up {
+                display: block;
+                animation: confirm-popup 0.5s ease-in-out forwards;
+            }
+
+            .confirm-box.down {
+                display: block;
+                animation: confirm-popdown 0.5s ease-in-out forwards;
+            }
+        }
+
+        @keyframes confirm-popup {
+            0% {
+                bottom: -200px;
+            }
+
+            100% {
+                bottom: 50vh;
+            }
+        }
+
+        @keyframes confirm-popdown {
+            0% {
+                bottom: 50vh;
+            }
+
+            100% {
+                bottom: -200px;
+            }
+        }
+
+        @keyframes popup-slider {
+            0% {
+                bottom: -200px;
+            }
+
+            20% {
+                bottom: 100px;
+            }
+
+            80% {
+                bottom: 100px;
+            }
+
+            100% {
+                bottom: -200px;
+            }
+        }
+
+        h5[contenteditable="true"] {
+            min-width: 300px;
+        }
+
+        h5[contenteditable="true"]:focus {
+            border: 1px solid #2f0e03;
+            padding: 0.2rem;
+        }
+    }
+}
+
+
+@media (min-width: 576px) {
+    * {
+        font-size: 16px;
+    }
+
+    .head-font {
+        font-size: 2.3rem;
+    }
+}
+
+@media (min-width: 768px) {}
+
+@media (min-width: 992px) {
+    * {
+        font-size: 18px;
+    }
+
+    .head-font {
+        font-size: 2.5rem;
+    }
+
+    .task-font {
+        font-size: 19px;
+    }
+}
+
+@media (min-width: 1200px) {
+    * {
+        font-size: 19px;
+    }
+
+    .head-font {
+        font-size: 2.8rem;
+    }
+
+    .task-font {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1400px) {
+    * {
+        font-size: 20px;
+    }
+
+    .head-font {
+        font-size: 3.2rem;
+    }
+
+    .task-font {
+        font-size: 22px;
+    }
+}
