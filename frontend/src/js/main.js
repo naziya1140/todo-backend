@@ -82,12 +82,10 @@ async function createFunctionalBtns() {
           const listItem = e.target.closest("li");
           const deleteId = listItem.id;
 
-          const res = await deleteTask(deleteId);
-          if (!res.ok) throw new Error("can't delete!");
+          await deleteTask(deleteId);
 
           //displaying after deleting.
           const tasks = await getTaskList();
-          displayTask(tasks);
           showAlert("Task Deleted Successfully!", "success");
         }
       }
