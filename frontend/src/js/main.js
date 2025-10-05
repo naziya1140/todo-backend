@@ -27,15 +27,21 @@ const messageBox = document.querySelector(".message");
 const searchBox = document.querySelector('#searchInput');
 
 
-//loading data in the local Storage.
+//🟢loading data in the local Storage.
 window.onload = async function () {
-  let tasks = await getTaskList();
-  // sorting(tasks);
-  createFunctionalBtns();
-  displayTask(tasks);
+  try{
+    let tasks = await getTaskList();
+    console.log(tasks)
+    // sorting(tasks);
+    createFunctionalBtns();
+    displayTask(tasks);
+  } catch(e){
+    console.error(e);
+    showAlert("Could not load tasks from server.", "error");
+  }
 };
 
-//searching.
+//🟢searching.
 searchBox.addEventListener("input", async () => {
   const searchValue = searchBox.value.toLowerCase(); // make case-insensitive
   const tasks = await getTaskList(); // fetch all tasks
@@ -47,6 +53,19 @@ searchBox.addEventListener("input", async () => {
 
   displayTask(filteredTasks); // show only matching tasks
 });
+
+//🟢extracting taskList from database.
+async function getTaskList() {
+  try{
+    const res = await fetch('http://localhost:8000');
+    if(!res.ok) throw new Error("Failed to fetch tasks from backend.");
+    return await res.json();
+  }
+  catch(e){
+    console.error("Error fetching tasks:", e);
+    showAlert(`Could not load tasks from server!`, 'error');
+  }
+}
 
 //making the list buttons functional.
 async function createFunctionalBtns() {
@@ -62,14 +81,17 @@ async function createFunctionalBtns() {
           const listItem = e.target.closest("li");
           const deleteId = listItem.id;
           
-          await deleteTask(deleteId);
-          const tasks = getTaskList();
+          const res = await deleteTask(deleteId);
+          
+          //displaying after deleting.
+          const tasks = await getTaskList();
           displayTask(tasks);
           showAlert("Task Deleted Successfully!", "success");
         }
       }
     } catch (e) {
-      console.log("something went wrong while deleting.");
+      console.log("deletion Error", e);
+      showAlert("something went wrong while deleting");
     }
   });
 
@@ -182,27 +204,44 @@ async function createFunctionalBtns() {
   });
 }
 
-//emptying all the boxes after adding input.
-// function restoreInputBoxes(){
-//   taskBox.value = "";
-//   preferenceBox.value = "";
-//   dateTimeBox.value = "";
-//   tagsBox.value = "";
-  
-//   taskBox.style.background = "white";
-//   taskBox.style.border = "none";
-  
-//   preferenceBox.style.background = "white";
-//   preferenceBox.style.border = "none";
-  
-//   dateTimeBox.style.background = "white";
-//   dateTimeBox.style.border = "none";
-  
-//   tagsBox.style.background = "white";
-//   tagsBox.style.border = "none";
-// }
+//🟢adding task to database..
+async function storeTask(taskData) {
+  try {
+    const res = await fetch('http://localhost:8000/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({taskData})
+    });
+    console.log("this is a response", res);
+    // if (!res.ok) throw new Error('Failed to create task');
+    showAlert('Task added successfully!', 'success');
+  } catch (e) {
+    console.error('Error creating task:', e);
+    showAlert('Could not add task to server', 'error');
+  }
+}
 
-//Adding new List.
+//emptying all the boxes after adding input.
+function restoreInputBoxes(){
+  taskBox.value = "";
+  preferenceBox.value = "";
+  dateTimeBox.value = "";
+  tagsBox.value = "";
+  
+  taskBox.style.background = "white";
+  taskBox.style.border = "none";
+  
+  preferenceBox.style.background = "white";
+  preferenceBox.style.border = "none";
+  
+  dateTimeBox.style.background = "white";
+  dateTimeBox.style.border = "none";
+  
+  tagsBox.style.background = "white";
+  tagsBox.style.border = "none";
+}
+
+//🟢Adding new List.
 addBtn.addEventListener("click", async () => {
   const preferenceInput = preferenceBox.value;
   const taskInput = taskBox.value.trim();
@@ -232,17 +271,18 @@ addBtn.addEventListener("click", async () => {
 
   //adding task.
   const taskData = {
-    id: new Date().getTime(),
     task: taskInput,
     preference: preferenceInput,
     dateTime: dateTimeInput ? new Date(dateTimeInput).toISOString() : null,
     tags: tagsInputArray,
-    completed: false,
   };
+  console.log(taskData);
 
   await storeTask(taskData);
+
   let tasks = await getTaskList();
-  // sorting(tasks);
+  displayTask(tasks);
+
   showAlert("Task added successfully!", "success");
 
   //Reset values.
@@ -254,135 +294,8 @@ addBtn.addEventListener("click", async () => {
   return;
 });
 
-//showing Alert message.
-function showAlert(message, method) {
-  messageBox.innerText = message;
-  // remove any previous state first
-  alertBox.classList.remove("success", "error", "show");
-  // add new state
-  alertBox.classList.add("show", method === "success" ? "success" : "error");
-  setTimeout(() => {
-    alertBox.classList.remove("success", "error", "show");
-  }, 3000);
-}
-
-//showing confirmation box.
-function showConfirmBox(message) {
-  confirmMsgBox.innerHTML = message; //adding msg to confirm box
-  confirmBox.classList.add("up");
-
-  return new Promise((resolve) => {
-    const yesBtn = document.querySelector(".yes-btn");
-    const noBtn = document.querySelector(".no-btn");
-
-    yesBtn.onclick = () => {
-      confirmBox.classList.remove("up");
-      confirmBox.classList.add("down");
-      resolve("yes");
-    };
-    noBtn.onclick = () => {
-      confirmBox.classList.remove("up");
-      confirmBox.classList.add("down");
-      resolve("no");
-    };
-  });
-}
-
-//sorting on the basis of Time.
-// function sortByTime(tasks) {
-//   tasks.sort((a, b) => {
-//     const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
-//     const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
-//     return aTime - bTime; // earlier time first
-//   });
-//   return tasks;
-// }
-
-//sorting on the basis of preference.
-// function sortByPreference(tasks) {
-//   const preferenceOrder = {
-//     High: 1,
-//     Medium: 2,
-//     Low: 3
-//   };
-
-//   tasks.sort((a, b) => {
-//     const aPref = preferenceOrder[a.preference] || 4;
-//     const bPref = preferenceOrder[b.preference] || 4;
-//     return aPref - bPref;
-//   });
-//   return tasks;
-// }
-
-//no sorting applied.
-// function sortByIndex(tasks) {
-//   tasks.sort((a, b) => {
-//     return Number(a.id) - Number(b.id);
-//   });
-//   return tasks;
-// }
-
-// function sorting(tasks) {
-//   console.log("this is tasks inside sorting", tasks);
-//   const sortValue = sortInput.value;
-
-//   if (sortValue === "time") {
-//     tasks = sortByTime(tasks);
-//   } else if (sortValue === "preference") {
-//     tasks = sortByPreference(tasks);
-//   } else {
-//     tasks = sortByIndex(tasks);
-//   }
-
-//   //either save it in the database.
-//   sortAndSaveTask(tasks);
-//   displayTask(tasks);
-// }
-
-// sortInput.addEventListener("change", sorting);
-
-//adding task to database..
-async function storeTask(taskData) {
-  try {
-    const res = await fetch('http://localhost:8000/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: new Date().getTime(),
-        task: taskData.task,
-        preference: taskData.preference,
-        dateTime: taskData.dateTime,
-        tags: taskData.tags,
-        completed: false,
-      })
-    });
-    if (!res.ok) throw new Error('Failed to create task');
-    showAlert('Task added successfully!', 'success');
-  } catch (e) {
-    console.error('Error creating task:', e);
-    showAlert('Could not add task to server', 'error');
-  }
-}
-
-//removing task from database.
-// async function deleteTask(id) {
-//   try{
-//     const res = await fetch(`http://localhost:8000/${id}`, {
-//       method:'DELETE'
-//     });
-//     if(!res.ok)throw new Error("Failed to delete task");
-//     showAlert('Task deleted successfully!', 'success');
-//   }
-//   catch(e){
-//     console.error('Error deleting task:', e);
-//     showAlert('Could not delete task from server', 'error');
-//   }
-// }
-
-//displaying tasks.
+//🟢displaying tasks.
 function displayTask(tasks) {
-  console.log("inside display tasks");
-
   const ul = document.querySelector("#taskList");
   ul.innerHTML = ""; //empty the container before adding the values again.
 
@@ -421,9 +334,6 @@ function displayTask(tasks) {
     </div>
   </div>`;
 
-    console.log(t.dateTime);
-    console.log(t.tags);
-
     newLi.id = t.id;
     ul.appendChild(newLi);
   });
@@ -431,19 +341,75 @@ function displayTask(tasks) {
   updateAnalyticBox(tasks);
 }
 
-//extracting taskList from database.
-async function getTaskList() {
+//sorting on the basis of Time.
+// function sortByTime(tasks) {
+//   tasks.sort((a, b) => {
+//     const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
+//     const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
+//     return aTime - bTime; // earlier time first
+//   });
+//   return tasks;
+// }
+
+//sorting on the basis of preference.
+// function sortByPreference(tasks) {
+//   const preferenceOrder = {
+//     High: 1,
+//     Medium: 2,
+//     Low: 3
+//   };
+
+//   tasks.sort((a, b) => {
+//     const aPref = preferenceOrder[a.preference] || 4;
+//     const bPref = preferenceOrder[b.preference] || 4;
+//     return aPref - bPref;
+//   });
+//   return tasks;
+// }
+
+// no sorting applied.
+// function sortByIndex(tasks) {
+//   tasks.sort((a, b) => {
+//     return Number(a.id) - Number(b.id);
+//   });
+//   return tasks;
+// }
+
+// function sorting(tasks) {
+//   console.log("this is tasks inside sorting", tasks);
+//   const sortValue = sortInput.value;
+
+//   if (sortValue === "time") {
+//     tasks = sortByTime(tasks);
+//   } else if (sortValue === "preference") {
+//     tasks = sortByPreference(tasks);
+//   } else {
+//     tasks = sortByIndex(tasks);
+//   }
+
+//   //either save it in the database.
+//   sortAndSaveTask(tasks);
+//   displayTask(tasks);
+// }
+
+// sortInput.addEventListener("change", sorting);
+
+
+//🟢removing task from database.
+async function deleteTask(id) {
   try{
-    const res = await fetch('http://localhost:8000/');
-    if(!res.ok) throw new Error("Failed to fetch tasks");
-    console.log("this is the response from res.ok" ,res);
-    return await res.json();
+    const res = await fetch(`http://localhost:8000/${id}`, {
+      method:'DELETE'
+    });
+    if(!res.ok)throw new Error("Failed to delete task");
+    showAlert('Task deleted successfully!', 'success');
   }
   catch(e){
-    console.error('error in fetching tasks:', e);
-    showAlert('Could not load tasks from server', 'error');
+    console.error('Error deleting task:', e);
+    showAlert('Could not delete task from server', 'error');
   }
 }
+
 
 // async function updateTask(id, updatedData){
 //   try{
@@ -457,7 +423,6 @@ async function getTaskList() {
 //         completed: updatedData.completed,
 //       })
 //     });
-
 //     if (!res.ok) throw new Error('Failed to update task');
 //     showAlert('Task updated successfully!', 'success');
 //     return;
@@ -468,35 +433,37 @@ async function getTaskList() {
 //   }
 // }
 
-//changing only a single value.
-// async function updateCompletionStatus(id, completed) {
-//   try {
-//     const res = await fetch(`http://localhost:8000/${id}`, {
-//       method: 'PATCH',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ completed })
-//     });
 
-//     if (!res.ok) throw new Error('Failed to update completion status');
-//     showAlert('Task status updated!', 'success');
-//   } catch (e) {
-//     console.error('Error updating completion status:', e);
-//     showAlert('Could not update task status', 'error');
-//   }
-// }
+// changing only a single value.
+async function updateCompletionStatus(id, completed) {
+  try {
+    const res = await fetch(`http://localhost:8000/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed })
+    });
 
-//updating the analytics.
-// function updateAnalyticBox(tasks) {
-//   const total = tasks.length;
-//   const completed = tasks.filter(t => t.completed === true).length;
-//   const pending = total - completed;
+    if (!res.ok) throw new Error('Failed to update completion status');
+    showAlert('Task status updated!', 'success');
+    
+  } catch (e) {
+    console.error('Error updating completion status:', e);
+    showAlert('Could not update task status', 'error');
+  }
+}
 
-//   document.querySelector(".total-tasks").innerText = total;
-//   document.querySelector(".completed-tasks").innerText = completed;
-//   document.querySelector(".pending-tasks").innerText = pending;
-// }
+//🟢updating the analytics.
+function updateAnalyticBox(tasks) {
+  const total = tasks.length;
+  const completed = tasks.filter(t => t.completed === true).length;
+  const pending = total - completed;
 
-// async function sortAndSaveTask(sortedTasks) {
+  document.querySelector(".total-tasks").innerText = total;
+  document.querySelector(".completed-tasks").innerText = completed;
+  document.querySelector(".pending-tasks").innerText = pending;
+}
+
+//🟢async function sortAndSaveTask(sortedTasks) {
 //   try {
 //     const response = await fetch('http://localhost:8000/sort', {
 //       method: 'PUT',
@@ -513,3 +480,37 @@ async function getTaskList() {
 //     console.error('Error saving sorted tasks:', e);
 //   }
 // }
+
+//showing Alert message.
+function showAlert(message, method) {
+  messageBox.innerText = message;
+  // remove any previous state first
+  alertBox.classList.remove("success", "error", "show");
+  // add new state
+  alertBox.classList.add("show", method === "success" ? "success" : "error");
+  setTimeout(() => {
+    alertBox.classList.remove("success", "error", "show");
+  }, 3000);
+}
+
+//🟢showing confirmation box.
+function showConfirmBox(message) {
+  confirmMsgBox.innerHTML = message; //adding msg to confirm box
+  confirmBox.classList.add("up");
+
+  return new Promise((resolve) => {
+    const yesBtn = document.querySelector(".yes-btn");
+    const noBtn = document.querySelector(".no-btn");
+
+    yesBtn.onclick = () => {
+      confirmBox.classList.remove("up");
+      confirmBox.classList.add("down");
+      resolve("yes");
+    };
+    noBtn.onclick = () => {
+      confirmBox.classList.remove("up");
+      confirmBox.classList.add("down");
+      resolve("no");
+    };
+  });
+}

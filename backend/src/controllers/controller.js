@@ -6,58 +6,63 @@ const __filename = fileURLToPath(import.meta.url); //getting full path of curren
 const __dirname = path.dirname(__filename)//extracting current module.
 const DB_PATH = path.join(__dirname, '../../database/db.json') //building path to JSON DB file.
 
+//returning task.
 async function readTask() {
-    try {
-        const data = await readFile(DB_PATH, 'utf-8')
-        return JSON.parse(data);
-    } catch (e) {
-        console.error('Error in writing files:', e);
-    }
+  try {
+    const data = await readFile(DB_PATH, 'utf-8');
+    const parsed = JSON.parse(data);
+    return parsed.tasks;
+  } catch (e) {
+    console.error('Error reading tasks file:', e);
+    return [];
+  }
 }
 
+//writing values in tasks.
 async function writeTask(data) {
-    try {
-        await writeFile(DB_PATH, JSON.stringify(data, null, 2));
-    } catch (e) {
-        console.error('Error in reading files', e);
+  try {
+    if (!Array.isArray(data)) {
+      throw new Error("Data must be an array of tasks");
     }
+    await writeFile(DB_PATH, JSON.stringify({ tasks : data }, null, 2));
+  } catch (e) {
+    console.error('Error writing tasks file:', e);
+  }
 }
 
-
+//fetching all tasks.
 const getAllTasks = async (req, res) => {
     try {
         const data = await readTask();
         if(!data){
-            throw new Error("Failed to fetch task List")
+            throw new Error("Failed to read task List")
         }
-        console.log("this is get all function" , data);
-        res.json(data.tasks);
-        
+        return await res.json(data);
     } catch (e) {
         res.status(500).json({ error: `Failed to read tasks ${e}`});
     }
-}
+};
+
 
 const addNewTask = async (req, res) => {
     try {
-        const {id, task, preference, timeDate, tags, completed } = req.body;
+        console.log('I am in add new taks');
+        console.log(req.body);
+        const {taskData} = req.body;
 
         const newTask = {
-            id,
-            task,
-            preference,
-            timeDate,
-            tags,
-            completed,
+            id: new Date().getTime(),
+            ...taskData,
+            completed: false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         }
+        console.log(newTask);
 
-        const data = await readTask();
-        data.tasks.push(newTask);
-        await writeTask(data);
-        res.status(201).json({ message: 'New task added!'});
-
+        const tasks = await readTask();
+        tasks.push(newTask);
+        await writeTask(tasks);
+        res.status(201).json();
     }
     catch (e) {
         res.status(500).json({ error: `Failed to add new task, ${e}` });
@@ -67,9 +72,10 @@ const addNewTask = async (req, res) => {
 const updateCompletionStatus = async (req, res) => {
     try {
         const {id} = req.params;
-        const data = await readTask();
-        const isFound = false;
-        for (let task of data.tasks) {
+        const tasks = await readTask();
+        let isFound = false;
+        
+        for (let task of tasks) {
             if (id == task.id) {
                 isFound = true;
                 task.completed = (!task.completed);
@@ -86,11 +92,11 @@ const updateCompletionStatus = async (req, res) => {
 const updateTask = async (req, res) => {
     try {
         const { id } = req.params;
-        const data = await readTask();
+        const tasks = await readTask();
         let isFound = false;
         const {task, preference, dateTime, tags, completed} = req.body;
 
-        for (let t of data.tasks) {
+        for (let t of tasks) {
             if (id === t.id) {
                 isFound = true;
                 t.task = task;
@@ -102,7 +108,7 @@ const updateTask = async (req, res) => {
             }
         }
         if (!isFound) return res.status(404).json({ error: `Task not found` });
-        await writeTask(data);
+        await writeTask(tasks);
     }
     catch (e) {
         res.status(500).json({ error: `failed to update task. , ${e}` })
@@ -113,16 +119,17 @@ const updateTask = async (req, res) => {
 const deleteTask = async (req, res) => {
     try {
         const { id } = req.params;
-        const data = await readTask();
-        const len = data.tasks.length;
+        let tasks = await readTask();
+        const len = tasks.length;
+       
+        tasks = tasks.filter((t) => String(t.id) !== id);
+        console.log(tasks);
 
-        data.tasks = data.tasks.filter((task) => task.id !== id);
-
-        if (data.tasks.length == len) {
+        if (tasks.length === len) {
             return res.status(404).json({ error: `task to be deleted not found` });
         }
-        await writeFile(data);
-        res.status(204).json({ success: `task added successfully!` });
+        await writeTask(tasks);
+        res.status(204).json({ success: `task deleted successfully!` });
     }
     catch (e) {
         res.status(500).json({ error: `failed to delete task, ${e}` })
