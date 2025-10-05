@@ -135,22 +135,23 @@ const deleteTask = async (req, res) => {
             return res.status(404).json({ error: `task to be deleted not found` });
         }
         await writeTask(tasks);
-        res.status(204).json({ success: `task deleted successfully!` });
+        res.status(204).json({ message: `task deleted successfully!` });
     }
     catch (e) {
         res.status(500).json({ error: `failed to delete task, ${e}` })
     }
 }
 
-const sortAndSaveTask = async (req, res) =>{
+const updateSortedTasks = async (req, res) =>{
     try{
         const {sortedTasks} = req.body;
+        console.log("inside backend",sortedTasks);
         console.log(sortedTasks);
         await writeTask(sortedTasks);
-        return;
+        res.status(200).json({ message: `tasks sorted successfully!` });
     } catch(e){
         res.status(500).json({error: `failed to sort task, ${e}`});
     }
 }
 
-export { getAllTasks, addNewTask, updateCompletionStatus, updateTask, deleteTask ,sortAndSaveTask };
+export { getAllTasks, addNewTask, updateCompletionStatus, updateTask, deleteTask , updateSortedTasks };

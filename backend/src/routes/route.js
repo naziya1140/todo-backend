@@ -5,14 +5,14 @@ import {
     updateCompletionStatus,
     updateTask,
     deleteTask,
-    sortAndSaveTask
+    updateSortedTasks
 } from '../controllers/controller.js';
 
 const todoRouter = express.Router();
 
 todoRouter.get('/', getAllTasks);
 todoRouter.post('/', addNewTask);
-todoRouter.put('/sort', sortAndSaveTask);
+todoRouter.put('/sort', updateSortedTasks);
 todoRouter.patch('/:id', updateCompletionStatus);
 todoRouter.put('/:id', updateTask);
 todoRouter.delete('/:id', deleteTask);

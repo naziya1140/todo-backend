@@ -32,7 +32,7 @@ window.onload = async function () {
   try {
     let tasks = await getTaskList();
     console.log(tasks)
-    // sorting(tasks);
+    sorting(tasks);
     createFunctionalBtns();
     displayTask(tasks);
   } catch (e) {
@@ -67,7 +67,7 @@ async function getTaskList() {
   }
 }
 
-//making the list buttons functional.
+//🟢making the list buttons functional.
 async function createFunctionalBtns() {
 
   //🟢deleting task.
@@ -86,6 +86,7 @@ async function createFunctionalBtns() {
 
           //displaying after deleting.
           const tasks = await getTaskList();
+          displayTask(tasks);
           showAlert("Task Deleted Successfully!", "success");
         }
       }
@@ -109,7 +110,6 @@ async function createFunctionalBtns() {
   
         const tasks = await getTaskList();
         displayTask(tasks);
-
       }
     }
     catch (e) {
@@ -253,8 +253,7 @@ function restoreInputBoxes() {
 
   tagsBox.style.background = "white";
   tagsBox.style.border = "none";
-
-  btnBox.remove();
+  if(btnBox)btnBox.remove();
 }
 
 //🟢Adding new List.
@@ -307,6 +306,7 @@ addBtn.addEventListener("click", async () => {
 
 //🟢displaying tasks.
 function displayTask(tasks) {
+  console.log("inside display tasks!");
   const ul = document.querySelector("#taskList");
   ul.innerHTML = ""; //empty the container before adding the values again.
 
@@ -353,57 +353,74 @@ function displayTask(tasks) {
 }
 
 //sorting on the basis of Time.
-// function sortByTime(tasks) {
-//   tasks.sort((a, b) => {
-//     const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
-//     const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
-//     return aTime - bTime; // earlier time first
-//   });
-//   return tasks;
-// }
+function sortByTime(tasks) {
+  tasks.sort((a, b) => {
+    const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
+    const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
+    return aTime - bTime; // earlier time first
+  }); 
+  return tasks;
+}
 
 //sorting on the basis of preference.
-// function sortByPreference(tasks) {
-//   const preferenceOrder = {
-//     High: 1,
-//     Medium: 2,
-//     Low: 3
-//   };
+function sortByPreference(tasks) {
+  const preferenceOrder = {
+    High: 1,
+    Medium: 2,
+    Low: 3
+  };
 
-//   tasks.sort((a, b) => {
-//     const aPref = preferenceOrder[a.preference] || 4;
-//     const bPref = preferenceOrder[b.preference] || 4;
-//     return aPref - bPref;
-//   });
-//   return tasks;
-// }
+  tasks.sort((a, b) => {
+    const aPref = preferenceOrder[a.preference] || 4;
+    const bPref = preferenceOrder[b.preference] || 4;
+    return aPref - bPref;
+  });
+  return tasks;
+}
 
 // no sorting applied.
-// function sortByIndex(tasks) {
-//   tasks.sort((a, b) => {
-//     return Number(a.id) - Number(b.id);
-//   });
-//   return tasks;
-// }
+function sortByIndex(tasks) {
+  tasks.sort((a, b) => {
+    return Number(a.id) - Number(b.id);
+  });
+  return tasks;
+}
 
-// function sorting(tasks) {
-//   console.log("this is tasks inside sorting", tasks);
-//   const sortValue = sortInput.value;
+async function sorting(tasks) {
+  try{
+    console.log("this is tasks inside sorting frontend", tasks);
+    const sortValue = sortInput.value;
+  
+    if (sortValue === "time") {
+      tasks = sortByTime(tasks);
+    } else if (sortValue === "preference") {
+      tasks = sortByPreference(tasks);
+    } else {
+      tasks = sortByIndex(tasks);
+    }
+  
+    //save it in the database.
+    console.log('before updated tasks!');
+    await updateSortedTasks(tasks);
 
-//   if (sortValue === "time") {
-//     tasks = sortByTime(tasks);
-//   } else if (sortValue === "preference") {
-//     tasks = sortByPreference(tasks);
-//   } else {
-//     tasks = sortByIndex(tasks);
-//   }
+    //display tasks
+    console.log("before display tasks!");
+    displayTask(tasks);
+  } catch(e){
+    console.error(e);
+    showAlert("Unable to sort tasks!");
+  }
+}
 
-//   //either save it in the database.
-//   sortAndSaveTask(tasks);
-//   displayTask(tasks);
-// }
-
-// sortInput.addEventListener("change", sorting);
+sortInput.addEventListener("change",async ()=>{
+  try{
+    let tasks = await getTaskList();
+    sorting(tasks);
+  } catch(e){
+    console.log(e);
+    showAlert('unable to sort', 'error');
+  }
+});
 
 
 //🟢removing task from database.
@@ -421,7 +438,7 @@ async function deleteTask(id) {
   }
 }
 
-//updating tasks.
+//🟢updating tasks.
 async function updateTask(id, updatedData){
   try{
     const res = await fetch(`http://localhost:8000/${id}`, {
@@ -445,7 +462,7 @@ async function updateTask(id, updatedData){
   }
 }
 
-// changing only a single value.
+//🟢changing only a single value.
 async function updateCompletionStatus(id) {
   try {
     const res = await fetch(`http://localhost:8000/${id}`, {
@@ -472,23 +489,24 @@ function updateAnalyticBox(tasks) {
   document.querySelector(".pending-tasks").innerText = pending;
 }
 
-//🟢async function sortAndSaveTask(sortedTasks) {
-//   try {
-//     const response = await fetch('http://localhost:8000/sort', {
-//       method: 'PUT',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ sortedTasks }),
-//     });
+async function updateSortedTasks(sortedTasks) {
+  try {
+    const res = await fetch('http://localhost:8000/sort', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({sortedTasks}),
+    });
 
-//     if (!response.ok) {
-//       throw new Error('Failed to save sorted tasks');
-//     }
-//   } catch (e) {
-//     console.error('Error saving sorted tasks:', e);
-//   }
-// }
+    if (!res.ok) {
+      throw new Error('Failed to save sorted tasks');
+    }
+    return;
+  } catch (e) {
+    console.error('Error saving sorted tasks:', e);
+  }
+}
 
 //showing Alert message.
 function showAlert(message, method) {
