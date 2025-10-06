@@ -1,16 +1,6 @@
 {
   "tasks": [
     {
-      "id": 1759671075277,
-      "task": "bathing",
-      "preference": "Medium",
-      "dateTime": "2025-10-14T13:31:00.000Z",
-      "tags": [],
-      "createdAt": "2025-10-05T13:31:15.277Z",
-      "updatedAt": "2025-10-05T17:18:06.482Z",
-      "completed": false
-    },
-    {
       "id": 1759684312376,
       "task": "playing outside",
       "preference": "High",
@@ -18,11 +8,10 @@
       "tags": [
         "danish",
         " amish",
-        " afsana"
+        " npp"
       ],
-      "completed": false,
       "createdAt": "2025-10-05T17:11:52.376Z",
-      "updatedAt": "2025-10-05T17:11:52.376Z"
+      "updatedAt": "2025-10-06T10:11:32.037Z"
     },
     {
       "id": 1759684622200,
@@ -44,19 +33,59 @@
         " amish",
         " afsana"
       ],
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-10-05T17:17:27.998Z",
       "updatedAt": "2025-10-05T17:17:27.998Z"
     },
     {
-      "id": 1759685496650,
-      "task": "bais is theree",
+      "id": 1759734191587,
+      "task": "playing outside",
       "preference": "High",
-      "dateTime": "2025-10-07T17:31:00.000Z",
+      "dateTime": null,
+      "tags": [],
+      "completed": false,
+      "createdAt": "2025-10-06T07:03:11.587Z",
+      "updatedAt": "2025-10-06T07:03:11.587Z"
+    },
+    {
+      "id": 1759734199172,
+      "task": "playing outside and chilling",
+      "preference": "High",
+      "dateTime": null,
       "tags": [],
       "completed": true,
-      "createdAt": "2025-10-05T17:31:36.650Z",
-      "updatedAt": "2025-10-05T17:31:36.650Z"
+      "createdAt": "2025-10-06T07:03:19.172Z",
+      "updatedAt": "2025-10-06T07:03:19.172Z"
+    },
+    {
+      "id": 1759734536656,
+      "task": "bais is theree",
+      "preference": "Medium",
+      "dateTime": null,
+      "tags": [],
+      "completed": true,
+      "createdAt": "2025-10-06T07:08:56.656Z",
+      "updatedAt": "2025-10-06T07:08:56.656Z"
+    },
+    {
+      "id": 1759735990719,
+      "task": "The first star (*) represents the responsiveness: sm, md, lg, xl or xxl, while the second star represents a number, which should add up to 12 for each row.",
+      "preference": "Medium",
+      "dateTime": null,
+      "tags": [],
+      "completed": true,
+      "createdAt": "2025-10-06T07:33:10.719Z",
+      "updatedAt": "2025-10-06T07:33:10.719Z"
+    },
+    {
+      "id": 1759741198065,
+      "task": "playing outside",
+      "preference": "High",
+      "dateTime": "2025-10-08T08:59:00.000Z",
+      "tags": [],
+      "completed": false,
+      "createdAt": "2025-10-06T08:59:58.065Z",
+      "updatedAt": "2025-10-06T08:59:58.065Z"
     }
   ]
 }

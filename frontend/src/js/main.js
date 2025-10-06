@@ -68,30 +68,33 @@ function displayTask(tasks) {
 
     let preferenceColor = "black"; // default color
     if (t.preference.toLowerCase() === "high") {
-      preferenceColor = "red";
+      preferenceColor = " linear-gradient(135deg, #3e0791ff, #563190ff);";
     } else if (t.preference.toLowerCase() === "medium") {
-      preferenceColor = "yellow";
+      preferenceColor = "linear-gradient(135deg, #5537aeff, #a75ee8ff);";
     } else if (t.preference.toLowerCase() === "low") {
-      preferenceColor = "green";
+      preferenceColor = "linear-gradient(135deg, #7C3AED, #A78BFA);";
     }
 
     newLi.innerHTML = `
-  <div class="list-container d-flex align-items-center justify-content-between">
-    <div class="data-container d-flex gap-2 align-items-center">
-      <div class="preference-container p-1 rounded-1" style="background:${preferenceColor}">${t.preference}</div>
-      <div class="time-container">${t.dateTime ? new Date(t.dateTime).toLocaleString() : ''}</div>
-      <p class="m-0" style="text-decoration: ${textStyle}">${t.task}</p>
-      <div class="tags-container">${t.tags.join(" ")}</div>
+  <div class="list-container row d-flex align-items-center p-2">
+    <div class="col-12 col-md-9 data-container d-flex flex-wrap gap-2 align-items-center">
+      <div class="preference-container p-1 px-2 rounded-5" style="background:${preferenceColor}">${t.preference}</div>
+      <div class="time-container p-1 rounded-5 small">${t.dateTime ? new Date(t.dateTime).toLocaleString() : ''}</div>
     </div>
 
-    <div class="btn-container">
-     <button class="btn primary-btn done-btn">
+    <div class="d-flex align-items-center text-container py-3 px-3 gap-2">
+      <p class="m-0 text-break" style="text-decoration: ${textStyle}">${t.task}</p>
+      <div class="tags-container small text-muted">${t.tags.join(" ")}</div>
+    </div>
+
+    <div class="btn-container col-12 d-flex">
+      <button class="btn primary-btn done-btn">
         ${t.completed === true ? 'Undone' : 'Done'}
       </button>
-
       ${functionalBtns}
     </div>
   </div>`;
+
 
     newLi.id = t.id;
     ul.appendChild(newLi);
@@ -159,7 +162,7 @@ async function createFunctionalBtns() {
       let taskData = null;
 
       //fetcining data to display in the input boxes.
-      for(let task of tasks){
+      for (let task of tasks) {
         if (id === String(task.id)) {
           taskData = task;
           break;
@@ -173,17 +176,17 @@ async function createFunctionalBtns() {
         dateTimeBox.value = taskData.dateTime;
         tagsBox.value = taskData.tags;
 
-        taskBox.style.background = "beige";
-        taskBox.style.border = "2px solid #81290cff";
+        taskBox.style.background = "#dac2f0ff";
+        taskBox.style.border = "2px solid #c083f6ff";
 
-        preferenceBox.style.background = "beige";
-        preferenceBox.style.border = "2px solid #81290cff";
+        preferenceBox.style.background = "#dac2f0ff";
+        preferenceBox.style.border = "2px solid #c083f6ff";
 
-        dateTimeBox.style.background = "beige";
-        dateTimeBox.style.border = "2px solid #81290cff";
+        dateTimeBox.style.background = "#dac2f0ff";
+        dateTimeBox.style.border = "2px solid #c083f6ff";
 
-        tagsBox.style.background = "beige";
-        tagsBox.style.border = "2px solid #81290cff";
+        tagsBox.style.background = "#dac2f0ff";
+        tagsBox.style.border = "2px solid #c083f6ff";
 
         const addTaskContainer = document.querySelector('.addTask-container');
         const existing = document.querySelector('.btn-row');
@@ -196,13 +199,13 @@ async function createFunctionalBtns() {
           newDiv.classList.add('btn-row');
 
           newDiv.innerHTML = `<div class="col-md-6 d-grid">
-            <button id="save-btn" class="btn primary-btn btn-brown">
+            <button id="save-btn" class="btn primary-btn purple-btn">
               Save
             </button>
           </div>
 
           <div class="col-md-6 d-grid">
-            <button id="cancel-btn" class="btn primary-btn btn-brown">
+            <button id="cancel-btn" class="btn primary-btn purple-btn">
               Cancel
             </button>
           </div>`;
@@ -213,7 +216,7 @@ async function createFunctionalBtns() {
           const cancelBtn = document.querySelector('#cancel-btn');
 
           saveBtn.addEventListener('click', async () => {
-            try{
+            try {
               const preferenceInput = preferenceBox.value;
               const taskInput = taskBox.value.trim();
               const dateTimeInput = dateTimeBox ? dateTimeBox.value : null;
@@ -228,18 +231,18 @@ async function createFunctionalBtns() {
               }
 
               await updateTask(id, updatedData);//updating tasks.
-    
+
               restoreInputBoxes();
 
               const tasks = await getTaskList();
               await sorting(tasks);
               displayTask(tasks);
-            } catch(e){
+            } catch (e) {
               console.error(e);
               showAlert("Updation error!", "error");
             }
           });
-       
+
           cancelBtn.addEventListener('click', () => {
             restoreInputBoxes();
           });
@@ -269,7 +272,7 @@ function restoreInputBoxes() {
   preferenceBox.value = "";
   dateTimeBox.value = "";
   tagsBox.value = "";
-  
+
   taskBox.style.background = "white";
   taskBox.style.border = "none";
 
@@ -281,7 +284,7 @@ function restoreInputBoxes() {
 
   tagsBox.style.background = "white";
   tagsBox.style.border = "none";
-  if(btnBox)btnBox.remove();
+  if (btnBox) btnBox.remove();
 }
 
 //🟢Adding new List(event listener)
@@ -366,8 +369,8 @@ async function deleteTask(id) {
 }
 
 //🟢updating tasks.
-async function updateTask(id, updatedData){
-  try{
+async function updateTask(id, updatedData) {
+  try {
     const res = await fetch(`http://localhost:8000/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -383,7 +386,7 @@ async function updateTask(id, updatedData){
     showAlert('Task updated successfully!', 'success');
     return;
   }
-  catch(e){
+  catch (e) {
     console.error('Error updating task:', e);
     showAlert('Could not update task on server', 'error');
   }
@@ -395,7 +398,7 @@ async function updateCompletionStatus(id) {
     const res = await fetch(`http://localhost:8000/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}) 
+      body: JSON.stringify({})
     });
 
     if (!res.ok) throw new Error('Failed to update completion status');
@@ -413,7 +416,7 @@ async function updateSortedTasks(sortedTasks) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({sortedTasks}),
+      body: JSON.stringify({ sortedTasks }),
     });
 
     if (!res.ok) {
@@ -431,7 +434,7 @@ function sortByTime(tasks) {
     const aTime = a.dateTime ? new Date(a.dateTime).getTime() : Infinity;
     const bTime = b.dateTime ? new Date(b.dateTime).getTime() : Infinity;
     return aTime - bTime; // earlier time first
-  }); 
+  });
   return tasks;
 }
 
@@ -460,9 +463,9 @@ function sortByIndex(tasks) {
 }
 
 async function sorting(tasks) {
-  try{
+  try {
     const sortValue = sortInput.value;
-  
+
     if (sortValue === "time") {
       tasks = sortByTime(tasks);
     } else if (sortValue === "preference") {
@@ -470,23 +473,23 @@ async function sorting(tasks) {
     } else {
       tasks = sortByIndex(tasks);
     }
-  
+
     //save it in the database.
     await updateSortedTasks(tasks);
 
     //display tasks.
     displayTask(tasks);
-  } catch(e){
+  } catch (e) {
     console.error(e);
     showAlert("Sorting Error", 'error');
   }
 }
 
-sortInput.addEventListener("change",async ()=>{
-  try{
+sortInput.addEventListener("change", async () => {
+  try {
     let tasks = await getTaskList();
     await sorting(tasks);
-  } catch(e){
+  } catch (e) {
     console.log(e);
   }
 });

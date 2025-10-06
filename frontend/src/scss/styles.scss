@@ -6,9 +6,10 @@
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
-    // font-family: "Fuzzy Bubbles", sans-serif;
-    font-weight: 600;
+    font-family: "Fuzzy Bubbles", sans-serif;
+    font-weight: 700;
     font-size: 12px;
+    font-style: normal;
 }
 
 body {
@@ -34,18 +35,15 @@ body {
 
     h1 {
         color: white;
+        font-weight: bolder;
     }
 
     h3 {
         color: black;
+        font-weight: 900;
     }
 
-    .btn-brown {
-        // border: none;
-        // background: linear-gradient(135deg, #5d03f8, #A78BFA);
-        // border-radius: 20px;
-        // color: black;
-        // box-shadow: inset(2px 2px white);
+    .purple-btn {
         background: linear-gradient(135deg, #9b5de5, #6a0dad);
         color: white;
         border: none;
@@ -58,13 +56,13 @@ body {
         background: linear-gradient(135deg, #5B0EE2, #9B5DE5);
     }
 
-    .btn-brown:hover {
+    .purple-btn:hover {
         background: linear-gradient(135deg, #b47bff, #7a1fc0);
         box-shadow: 0 6px 14px rgba(122, 31, 192, 0.5);
         transform: translateY(-2px);
     }
 
-    .btn-brown:active {
+    .purple-btn:active {
         background: linear-gradient(135deg, #6a0dad, #5a0ba0);
         box-shadow: 0 2px 6px rgba(90, 11, 160, 0.4);
         transform: translateY(1px);
@@ -114,28 +112,57 @@ body {
         .input-container {
             border-radius: 15px;
             padding: 13px;
-            // background: linear-gradient(135deg, #6450a0,  #34194c);
             box-shadow: 1px 1px 15px rgba(19, 16, 16, 0.379);
-
         }
 
         #taskList {
+            padding: 5px;
+
             li {
                 margin: 0.3rem;
-                background-color: white;
-                border-radius: 6px;
+                box-shadow: 1px 1px 15px rgba(19, 16, 16, 0.379);
                 padding: 0.2rem;
                 padding-left: 0.5rem;
                 padding-right: 0.5rem;
                 list-style: none;
+                background: rgb(255, 255, 255);
+                backdrop-filter: blur(8px);
+                border-radius: 14px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-left: 7px solid #9B5DE5;
+                margin-bottom: 1rem;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+                
+
+                .preference-container {
+                    color: white;
+                    font-weight: 400;
+                    cursor: pointer;
+                    box-shadow: 0 4px 8px rgba(22, 1, 37, 0.4);
+                }
+
+                .time-container {
+                    background-color: #b47bff;
+                    color: white;
+                }
 
                 .btn-container {
                     display: flex;
                     align-items: center;
+                    font-size: 14px;
 
                     .done-btn {
-                        background-color: black;
+                        // background-color: black;
+                        background-color: #b47bff;
                         color: white;
+                        border-radius: 20px;
+                    }
+                    .done-btn:hover{
+                        background-color: #8b4ae0;
                     }
 
                     .functional-btns {
@@ -148,22 +175,31 @@ body {
                     }
                 }
             }
+
+            li:hover{
+                transform: translateY(-3px);
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+            }
         }
 
-        .list-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+
+        .preference-container {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 3px 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
 
         .data-container {
             display: flex;
             align-items: center;
-            gap: 10px;
         }
 
-        .data-container>* {
-            margin: 0;
+        .text-container {
+            align-items: center;
         }
 
         .alert-container {
@@ -212,18 +248,12 @@ body {
                 width: fit-content;
                 height: fit-content;
                 color: white;
-                background-color: #2f0e03d8;
+                background-color: #550eabdd;
                 backdrop-filter: blur(10px);
-                border: 1px solid #2f0e03;
                 border-radius: 10px;
                 bottom: -200px;
                 position: fixed;
                 display: none;
-
-                button {
-                    background-color: white;
-                    color: brown;
-                }
             }
 
             .confirm-box.up {
