@@ -497,9 +497,9 @@ function updateAnalyticBox(tasks) {
   const completed = tasks.filter(t => t.completed === true).length;
   const pending = total - completed;
 
-  document.querySelector(".total-tasks").innerText = total;
-  document.querySelector(".completed-tasks").innerText = completed;
-  document.querySelector(".pending-tasks").innerText = pending;
+  document.querySelector(".total-tasks .analytic-body").innerText = total;
+  document.querySelector(".completed-tasks .analytic-body").innerText = completed;
+  document.querySelector(".pending-tasks .analytic-body").innerText = pending;
 }
 
 //🟢showing Alert message.

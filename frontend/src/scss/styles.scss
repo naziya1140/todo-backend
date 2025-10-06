@@ -1,12 +1,13 @@
 // Import all of Bootstrap’s CSS
 @import "bootstrap/scss/bootstrap";
-@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap');
 
 * {
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
-    font-family: "cabin", "sans-serif";
+    // font-family: "Fuzzy Bubbles", sans-serif;
+    font-weight: 600;
     font-size: 12px;
 }
 
@@ -28,24 +29,45 @@ body {
         #1E0F0A 100%
         /* Black Coffee */
     );
+    background: linear-gradient(135deg, #6A0DAD, #04294f, #FF69B4);
 
 
     h1 {
         color: white;
     }
 
+    h3 {
+        color: black;
+    }
+
     .btn-brown {
-        border: none;
-        background-color: #2f0e03;
+        // border: none;
+        // background: linear-gradient(135deg, #5d03f8, #A78BFA);
+        // border-radius: 20px;
+        // color: black;
+        // box-shadow: inset(2px 2px white);
+        background: linear-gradient(135deg, #9b5de5, #6a0dad);
         color: white;
+        border: none;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(22, 1, 37, 0.4);
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #5B0EE2, #9B5DE5);
     }
 
     .btn-brown:hover {
-        background-color: #b5895e;
+        background: linear-gradient(135deg, #b47bff, #7a1fc0);
+        box-shadow: 0 6px 14px rgba(122, 31, 192, 0.5);
+        transform: translateY(-2px);
     }
 
     .btn-brown:active {
-        background-color: #1E0F0A;
+        background: linear-gradient(135deg, #6a0dad, #5a0ba0);
+        box-shadow: 0 2px 6px rgba(90, 11, 160, 0.4);
+        transform: translateY(1px);
     }
 
     .container {
@@ -57,41 +79,72 @@ body {
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.2);
 
-            .analytic-box{
+            .analytic-box {
                 text-align: center;
-                background-color: #2f0e03;
-                color: white;
-                font-size: 3rem;
-                font-weight: 600;
+                color: black;
+                border-radius: 20px;
+                box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.759);
+                transition: 0.3s transform cubic-bezier(0.075, 0.82, 0.165, 1);
+
+                .analytic-body {
+                    font-size: 2rem;
+                    font-weight: 700;
+                }
             }
+
+            .analytic-box:hover {
+                transform: scale(1.11);
+                transition: 0.3s transform cubic-bezier(0.075, 0.82, 0.165, 1);
+                box-shadow: 2px 2px 15px rgba(10, 9, 9, 0.478);
+            }
+
+            .total-tasks {
+                background: linear-gradient(135deg, #410898, #6D28D9);
+            }
+
+            .completed-tasks {
+                background: linear-gradient(135deg, #7C3AED, #A78BFA);
+            }
+
+            .pending-tasks {
+                background: linear-gradient(135deg, #A78BFA, #D8B4F8);
+            }
+        }
+
+        .input-container {
+            border-radius: 15px;
+            padding: 13px;
+            // background: linear-gradient(135deg, #6450a0,  #34194c);
+            box-shadow: 1px 1px 15px rgba(19, 16, 16, 0.379);
+
         }
 
         #taskList {
             li {
-                // display: flex;
-                // justify-content: space-between;
-                // align-items: center;
                 margin: 0.3rem;
                 background-color: white;
                 border-radius: 6px;
                 padding: 0.2rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
                 list-style: none;
 
-                .btn-container{
+                .btn-container {
                     display: flex;
                     align-items: center;
+
                     .done-btn {
                         background-color: black;
                         color: white;
                     }
-                    
+
                     .functional-btns {
                         margin: 0.2rem;
-                        
+
                         img {
                             width: 1.5rem;
                         }
-                        
+
                     }
                 }
             }
@@ -158,13 +211,19 @@ body {
             .confirm-box {
                 width: fit-content;
                 height: fit-content;
-                color: black;
-                background-color: white;
-                border-radius: 15px;
-                border-bottom: 8px solid #2f0e03;
+                color: white;
+                background-color: #2f0e03d8;
+                backdrop-filter: blur(10px);
+                border: 1px solid #2f0e03;
+                border-radius: 10px;
                 bottom: -200px;
                 position: fixed;
                 display: none;
+
+                button {
+                    background-color: white;
+                    color: brown;
+                }
             }
 
             .confirm-box.up {
@@ -231,6 +290,10 @@ body {
 @media (min-width: 576px) {
     * {
         font-size: 16px;
+    }
+
+    .input-container {
+        margin-top: 2rem;
     }
 
     .head-font {

@@ -13,41 +13,55 @@
   <div class="container">
     <div class="card p-3">
       <h1 class="text-center pb-3 head-font">To-do-list</h1>
+      <h3 class="text-center">Plan, priortize, and accomplish your tasks with ease!</h3>
 
-      <div class="row d-flex justify-content-center align-items-center my-4 gap-3">
-        <div class="analytic-box total-tasks p-3 col-md-3 h-100"></div>
-        <div class="analytic-box completed-tasks p-3 col-md-3"></div>
-        <div class="analytic-box pending-tasks p-3 col-md-3"></div>
+
+      <div class="row cd-flex justify-content-center align-items-center my-4 gap-4">
+        <div class="analytic-box total-tasks p-3 col-5 col-sm-3 h-100">
+          <div class="analytic-heading">Total</div>
+          <div class="analytic-body"></div>
+        </div>
+        
+        <div class="analytic-box completed-tasks col-5 p-3 col-sm-3">
+          <div class="analytic-heading">Ended</div>
+          <div class="analytic-body"></div>
+        </div>
+        
+        <div class="analytic-box pending-tasks col-5 p-3 col-sm-3">
+          <div class="analytic-heading">Pending</div>
+          <div class="analytic-body"></div>
+        </div>
       </div>
+      
+      <div class="input-container">
+        <div class="row g-2 input-box">
+          <div class="col-md-7">
+            <input type="text" id="taskInput" class="form-control" placeholder="Enter task">
+          </div>
+          <div class="col-md-3">
+            <select id="preferenceInput" class="form-select">
+              <option value="" selected>Select Preference</option>
+              <option value="High">High🔴</option>
+              <option value="Medium">Medium🟡</option>
+              <option value="Low">Low🟢</option>
+            </select>
+          </div>
 
-      <div class="row g-2 input-box">
-        <div class="col-md-7">
-          <input type="text" id="taskInput" class="form-control" placeholder="Enter task">
-        </div>
-        <div class="col-md-3">
-          <select id="preferenceInput" class="form-select">
-            <option value="" selected>Select Preference</option>
-            <option value="High">High🔴</option>
-            <option value="Medium">Medium🟡</option>
-            <option value="Low">Low🟢</option>
-          </select>
-        </div>
-
-        <div class="col-md-2">
+          <div class="col-md-2">
             <input type="datetime-local" name="dateTimeInput" id="dateTimeInput" class="form-control">
-        </div>
-      </div>
-
-      <div class="row g-3 align-items-center pt-3 addTask-container">
-        <div class="col-md-8">
-          <input type="text" class="form-control tags-input" placeholder="Enter tags...">
+          </div>
         </div>
 
-        <div class="col-md-4 d-grid">
-          <button id="addBtn" class="btn primary-btn btn-brown">
-            Add Task
-          </button>
-        </div>
+        <div class="row g-3 align-items-center pt-3 addTask-container">
+          <div class="col-md-8">
+            <input type="text" class="form-control tags-input" placeholder="Enter tags...">
+          </div>
+
+          <div class="col-md-4 d-grid">
+            <button id="addBtn" class="btn primary-btn btn-brown">
+              Add Task
+            </button>
+          </div>
       </div>
 
 
@@ -64,6 +78,8 @@
           <button class="btn btn-primary btn-brown">Search</button>
         </div>
       </div>
+      </div>
+    
 
       <ul id="taskList" class="list-group mt-4">
       </ul>
@@ -74,32 +90,18 @@
         <div class="message"></div>
       </div>
     </div>
-    
-      <div class="confirm-container">
-        <div class="confirm-box p-3 d-flex justify-content-center align-items-center">
-          <form>
-            <div class="confirm-msg-box p-3"></div>
-            <div class="confirm-btns-box d-flex justify-content-around">
-              <button type = "button" class="btn primary-btn btn-brown yes-btn">Yes</button>
-              <button type = "button" class="btn primary-btn btn-brown no-btn">No</button>
-            </div>
-          </form>
-        </div>
+
+    <div class="confirm-container">
+      <div class="confirm-box p-3 d-flex justify-content-center align-items-center">
+        <form>
+          <div class="confirm-msg-box p-3"></div>
+          <div class="confirm-btns-box d-flex justify-content-around">
+            <button type="button" class="btn primary-btn btn-brown yes-btn">Yes</button>
+            <button type="button" class="btn primary-btn btn-brown no-btn">No</button>
+          </div>
+        </form>
       </div>
-
-
-      <!-- <div class="edit-container">
-        <div class="edit-box p-3 d-flex justify-content-center align-items-center">
-          <form method="/">
-            <input type="text">
-            <input type="text">
-            <div class="confirm-btns-box d-flex justify-content-around gap-3">
-              <button type = "button" class="btn primary-btn btn-brown yes-btn">Cancel</button>
-              <button type = "button" class="btn primary-btn btn-brown no-btn">Save Changes</button>
-            </div>
-          </form>
-        </div>
-      </div> -->
+    </div>
   </div>
 
   <script type="module" src="./js/main.js"></script>
